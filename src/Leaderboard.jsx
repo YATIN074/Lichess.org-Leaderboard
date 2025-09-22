@@ -1,62 +1,69 @@
 import React, { useEffect, useState } from "react";
 
-const divisions = ["Division A", "Division B", "Division C"];
-
 const Leaderboard = () => {
-  const [data, setData] = useState({});
+  const [data, setData] = useState(null);
+  const [selectedDivision, setSelectedDivision] = useState("");
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        // Replace this with your API call if available
-        const res = await fetch(`https://lichess.org/api/player`);
+        const res = await fetch("https://lichess.org/api/player"); 
         const json = await res.json();
-
-        // Random mock data for 3 divisions
-        divisions.forEach((div) => {
-          json[div] = Array.from({ length: 5 }, (_, i) => ({
-            id: i,
-            name: `Player ${i + 1}`,
-            rating: Math.floor(Math.random() * 3000),
-          }));
-        });
-
         setData(json);
+        setSelectedDivision("blitz"); 
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
     };
 
     fetchLeaderboard();
   }, []);
+  const divisions = ["bullet", "blitz", "rapid", "classical"];
+
+  const handleDivisionChange = async (division) => {
+    try {
+      const res = await fetch(`https://lichess.org/api/player/top/200/${division}`);
+      const json = await res.json();
+      setData(json);
+      setSelectedDivision(division);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold mb-6">Leaderboard</h1>
+      <select
+        className="border p-2 mb-6"
+        value={selectedDivision}
+        onChange={(e) => handleDivisionChange(e.target.value)}
+      >
+        <option value="" disabled>
+          Select Division
+        </option>
+        {divisions.map((div) => (
+          <option key={div} value={div}>
+            {div.charAt(0).toUpperCase() + div.slice(1)}
+          </option>
+        ))}
+      </select>
 
-      {divisions.map((division) => (
-        <div key={division} className="mb-8">
-          <h2 className="text-2xl font-semibold mb-2">{division}</h2>
-          <table className="table-auto border-collapse border border-gray-400 w-full">
-            <thead>
-              <tr>
-                <th className="border border-gray-400 px-4 py-2">Rank</th>
-                <th className="border border-gray-400 px-4 py-2">Name</th>
-                <th className="border border-gray-400 px-4 py-2">Rating</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data[division]?.sort((a, b) => b.rating - a.rating).map((player, index) => (
-                <tr key={player.id}>
-                  <td className="border border-gray-400 px-4 py-2">{index + 1}</td>
-                  <td className="border border-gray-400 px-4 py-2">{player.name}</td>
-                  <td className="border border-gray-400 px-4 py-2">{player.rating}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ))}
+      <div>
+        {data?.users ? (
+          <ul>
+            {data.users.map((player, index) => (
+              <li key={player.id} className="mb-2">
+                <strong>#{index + 1}</strong> {player.username}{" "}
+                {player.title ? `(${player.title})` : ""} - Rating:{" "}
+                {player.perfs[selectedDivision]?.rating}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>Select a division to view leaderboard</p>
+        )}
+      </div>
     </div>
   );
 };
