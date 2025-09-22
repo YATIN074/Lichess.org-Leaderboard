@@ -1,16 +1,17 @@
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import Home from "./Home";
+import Profile from "./Profile";
+import Leaderboard from "./Leaderboard";
 
-import './App.css'
-import { Route, Routes, useNavigate } from "react-router-dom";
-import Profile from './Profile';
 function App() {
-
   return (
-    <div className='flex justify-center '>
       <Routes>
-        <Route path = "/profile" element = {<Profile/>}/>
+        <Route path="/" element={<Home />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
       </Routes>
-    </div>
-  )
+  );
 }
 
-export default App
+export default App;
