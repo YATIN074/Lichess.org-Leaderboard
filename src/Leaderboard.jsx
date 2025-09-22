@@ -7,10 +7,11 @@ const Leaderboard = () => {
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const res = await fetch("https://lichess.org/api/player"); 
+        const res = await fetch("https://lichess.org/api/player/top/200/blitz"); 
         const json = await res.json();
         setData(json);
         setSelectedDivision("blitz"); 
+        console.log(json);
       } catch (err) {
         console.error(err);
       }
@@ -18,6 +19,7 @@ const Leaderboard = () => {
 
     fetchLeaderboard();
   }, []);
+
   const divisions = ["bullet", "blitz", "rapid", "classical"];
 
   const handleDivisionChange = async (division) => {
@@ -34,6 +36,7 @@ const Leaderboard = () => {
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold mb-6">Leaderboard</h1>
+
       <select
         className="border p-2 mb-6"
         value={selectedDivision}
